@@ -7,6 +7,7 @@ type TUI interface {
 type Worker interface {
 	Init() error
 	Close() error
+	View() string
 }
 
 func New(worker Worker) TUI {
