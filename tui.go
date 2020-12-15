@@ -4,6 +4,11 @@ type TUI interface {
 	Run() error
 }
 
-func New() TUI {
-	return newImpl()
+type Worker interface {
+	Init() error
+	Close() error
+}
+
+func New(worker Worker) TUI {
+	return newImpl(worker)
 }

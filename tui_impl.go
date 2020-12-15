@@ -11,11 +11,13 @@ import (
 
 type impl struct {
 	output *os.File
+	worker Worker
 }
 
-func newImpl() *impl {
+func newImpl(worker Worker) *impl {
 	return &impl{
 		output: os.Stdout,
+		worker: worker,
 	}
 }
 
@@ -23,7 +25,12 @@ func (r *impl) Run() error {
 	if err := initConsole(r.output); err != nil {
 		return err
 	}
-	defer resetConsole()
+	defer resetConsole(r.output)
+
+	if err := r.worker.Init(); err != nil {
+		return err
+	}
+	defer r.worker.Close()
 
 	fmt.Println("start read")
 
