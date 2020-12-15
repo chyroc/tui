@@ -15,6 +15,7 @@ type impl struct {
 	output *os.File
 	worker Worker
 	render *internal.Renderer
+	end    chan int
 }
 
 func newImpl(worker Worker) *impl {
@@ -23,6 +24,7 @@ func newImpl(worker Worker) *impl {
 		output: os.Stdout,
 		worker: worker,
 		render: internal.NewRenderer(os.Stdout, &lock),
+		end:    make(chan int),
 	}
 }
 
@@ -43,10 +45,6 @@ func (r *impl) Run() (finalErr error) {
 	}
 	defer r.worker.Close()
 
-	fmt.Println("start read")
-
-	end := make(chan int)
-
 	// read input
 	go func() {
 		for {
@@ -57,7 +55,7 @@ func (r *impl) Run() (finalErr error) {
 			}
 
 			if e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == internal.KeyCtrlC {
-				close(end)
+				close(r.end)
 				break
 			}
 
@@ -71,7 +69,7 @@ func (r *impl) Run() (finalErr error) {
 		case <-t.C:
 			v := r.worker.View()
 			r.render.Write(v)
-		case <-end:
+		case <-r.end:
 			return nil
 		}
 	}
