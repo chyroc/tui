@@ -2,29 +2,26 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/chyroc/tui"
 )
 
 type worker struct {
-	msg string
 	tui tui.TUI
+	end time.Time
 }
 
 func (r *worker) Init() error {
 	go func() {
-		url := "http://example.org/"
-		r.msg = fmt.Sprintf("start fetch %s ...", url)
-		time.Sleep(time.Second)
-		resp, err := http.Get(url)
-		if err != nil {
-			r.msg = fmt.Sprintf("failed: %s", err)
-		} else {
-			r.msg = fmt.Sprintf("success, code: %d", resp.StatusCode)
+		end := time.Now().Add(time.Second * 5)
+		r.end = end
+		for {
+			if time.Now().After(end) {
+				break
+			}
+			time.Sleep(time.Second / 10)
 		}
-		time.Sleep(time.Second)
 		tui.Stop(r.tui)
 	}()
 	return nil
@@ -35,7 +32,7 @@ func (r *worker) Close() error {
 }
 
 func (r *worker) View() string {
-	return r.msg
+	return fmt.Sprintf("will stop after %0.2f", r.end.Sub(time.Now()).Seconds())
 }
 
 func NewWorker() *worker {
