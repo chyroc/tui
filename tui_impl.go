@@ -1,12 +1,9 @@
 package tui
 
 import (
-	"fmt"
 	"os"
 	"sync"
 	"time"
-
-	"github.com/tj/go-terminput"
 
 	"github.com/chyroc/tui/internal"
 )
@@ -48,18 +45,15 @@ func (r *impl) Run() (finalErr error) {
 	// read input
 	go func() {
 		for {
-			e, err := internal.ReadTerminal(r.output)
+			e, err := readTerminalInput(r.output)
 			if err != nil {
 				finalErr = err
 				return
 			}
 
-			if e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == internal.KeyCtrlC {
-				close(r.end)
-				break
+			if r.worker.HandleInput != nil {
+				r.worker.HandleInput(e)
 			}
-
-			fmt.Printf("e=%s, e.ctrl=%v, rune=%v, mod=%v, key=%v, ctrl-a=%v\n", e, e.Ctrl(), e.Rune(), e.Mod(), e.Key(), e.Key() == internal.KeyCtrlA)
 		}
 	}()
 

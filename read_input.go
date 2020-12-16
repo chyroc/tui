@@ -1,4 +1,4 @@
-package internal
+package tui
 
 import (
 	"io"
@@ -35,6 +35,6 @@ const (
 	KeyCtrlZ
 )
 
-func ReadTerminal(r io.Reader) (*terminput.KeyboardInput, error) {
+func readTerminalInput(r io.Reader) (*terminput.KeyboardInput, error) {
 	return terminput.Read(r)
 }

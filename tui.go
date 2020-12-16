@@ -1,5 +1,9 @@
 package tui
 
+import (
+	"github.com/tj/go-terminput"
+)
+
 type TUI interface {
 	Run() error
 }
@@ -8,6 +12,7 @@ type Worker interface {
 	Init() error
 	Close() error
 	View() string
+	HandleInput(e *terminput.KeyboardInput)
 }
 
 func Stop(t TUI) {

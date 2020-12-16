@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/tj/go-terminput"
+
 	"github.com/chyroc/tui"
 )
 
@@ -36,6 +38,14 @@ func (r *worker) Close() error {
 
 func (r *worker) View() string {
 	return r.msg
+}
+
+func (r *worker) HandleInput(e *terminput.KeyboardInput) {
+	if e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC {
+		tui.Stop(r.tui)
+		return
+	}
+	fmt.Printf("e=%s, e.ctrl=%v, rune=%v, mod=%v, key=%v\n", e, e.Ctrl(), e.Rune(), e.Mod(), e.Key())
 }
 
 func NewWorker() *worker {
