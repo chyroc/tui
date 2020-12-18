@@ -9,20 +9,24 @@ import (
 )
 
 type impl struct {
-	output *os.File
-	worker Worker
-	render *internal.Renderer
-	end    chan int
+	output    *os.File
+	worker    Worker
+	render    *internal.Renderer
+	done      chan struct{}
+	closeOnce sync.Once
 }
 
-func newImpl(worker Worker) *impl {
+func newImpl() *impl {
 	lock := sync.Mutex{}
 	return &impl{
 		output: os.Stdout,
-		worker: worker,
 		render: internal.NewRenderer(os.Stdout, &lock),
-		end:    make(chan int),
+		done:   make(chan struct{}),
 	}
+}
+
+func (r *impl) SetWorker(worker Worker) {
+	r.worker = worker
 }
 
 func (r *impl) Run() (finalErr error) {
@@ -45,13 +49,16 @@ func (r *impl) Run() (finalErr error) {
 	// read input
 	go func() {
 		for {
-			e, err := readTerminalInput(r.output)
-			if err != nil {
-				finalErr = err
+			select {
+			case <-r.done:
 				return
-			}
+			default:
+				e, err := readTerminalInput(r.output)
+				if err != nil {
+					finalErr = err
+					return
+				}
 
-			if r.worker.HandleInput != nil {
 				r.worker.HandleInput(e)
 			}
 		}
@@ -63,10 +70,8 @@ func (r *impl) Run() (finalErr error) {
 		case <-t.C:
 			v := r.worker.View()
 			r.render.Write(v)
-		case <-r.end:
+		case <-r.done:
 			return nil
 		}
 	}
-
-	return nil
 }

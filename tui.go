@@ -2,10 +2,13 @@ package tui
 
 import (
 	"github.com/tj/go-terminput"
+
+	"github.com/chyroc/tui/internal"
 )
 
 type TUI interface {
 	Run() error
+	SetWorker(worker Worker)
 }
 
 type Worker interface {
@@ -20,9 +23,9 @@ func Stop(t TUI) {
 		return
 	}
 	r := t.(*impl)
-	close(r.end)
+	internal.CloseChanStruct(r.done)
 }
 
-func New(worker Worker) TUI {
-	return newImpl(worker)
+func New() TUI {
+	return newImpl()
 }

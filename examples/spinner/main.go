@@ -10,7 +10,7 @@ import (
 )
 
 type worker struct {
-	tui      tui.TUI
+	tui.TUI
 	count    int
 	options  [][]string
 	selected int
@@ -42,7 +42,7 @@ func (r *worker) View() string {
 func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	switch {
 	case e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC:
-		tui.Stop(r.tui)
+		tui.Stop(r.TUI)
 	case e.Key() == terminput.KeyUp || e.Key() == terminput.KeyLeft:
 		if r.selected > 0 {
 			r.selected--
@@ -60,14 +60,13 @@ func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	}
 }
 
-func NewWorker() *worker {
-	return &worker{}
+func NewWorker(tui tui.TUI) *worker {
+	return &worker{TUI: tui}
 }
 
 func main() {
-	worker := NewWorker()
-	r := tui.New(worker)
-	worker.tui = r
+	worker := NewWorker(tui.New())
+	worker.SetWorker(worker)
 	worker.options = [][]string{
 		{"🌎", "🌍", "🌏"},
 		{"👆", "👉", "👇", "👈"},
@@ -80,7 +79,7 @@ func main() {
 		{"🕜", "🕝", "🕞", "🕟", "🕠", "🕡", "🕢", "🕣", "🕤", "🕥", "🕦", "🕧"},
 	}
 
-	if err := r.Run(); err != nil {
+	if err := worker.Run(); err != nil {
 		panic(err)
 	}
 }

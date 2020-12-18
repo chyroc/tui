@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,7 +17,6 @@ func listenForResize(output *os.File, f func(width, height int, err error)) {
 	for {
 		<-sig
 		w, h, err := terminal.GetSize(int(output.Fd()))
-		fmt.Println("resize", w, h, err)
 		f(w, h, err)
 	}
 }

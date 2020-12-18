@@ -84,7 +84,7 @@ func (r *Renderer) listen() {
 			r.ticker.Stop()
 			r.ticker = nil
 			r.mtx.Unlock()
-			close(r.done)
+			CloseChanStruct(r.done)
 			return
 		}
 	}

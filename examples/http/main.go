@@ -11,8 +11,8 @@ import (
 )
 
 type worker struct {
+	tui.TUI
 	msg string
-	tui tui.TUI
 }
 
 func (r *worker) Init() error {
@@ -27,7 +27,7 @@ func (r *worker) Init() error {
 			r.msg = fmt.Sprintf("success, code: %d", resp.StatusCode)
 		}
 		time.Sleep(time.Second)
-		tui.Stop(r.tui)
+		tui.Stop(r.TUI)
 	}()
 	return nil
 }
@@ -42,22 +42,21 @@ func (r *worker) View() string {
 
 func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	if e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC {
-		tui.Stop(r.tui)
+		tui.Stop(r.TUI)
 		return
 	}
 	fmt.Printf("e=%s, e.ctrl=%v, rune=%v, mod=%v, key=%v\n", e, e.Ctrl(), e.Rune(), e.Mod(), e.Key())
 }
 
-func NewWorker() *worker {
-	return &worker{}
+func NewWorker(tui tui.TUI) *worker {
+	return &worker{TUI: tui}
 }
 
 func main() {
-	worker := NewWorker()
-	r := tui.New(worker)
-	worker.tui = r
+	worker := NewWorker(tui.New())
+	worker.SetWorker(worker)
 
-	if err := r.Run(); err != nil {
+	if err := worker.Run(); err != nil {
 		panic(err)
 	}
 }

@@ -45,16 +45,17 @@ func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	fmt.Printf("e=%s, e.ctrl=%v, rune=%v, mod=%v, key=%v\n", e, e.Ctrl(), e.Rune(), e.Mod(), e.Key())
 }
 
-func NewWorker() *worker {
-	return &worker{}
+func NewWorker(tui tui.TUI) *worker {
+	return &worker{
+		tui: tui,
+	}
 }
 
 func main() {
-	worker := NewWorker()
-	r := tui.New(worker)
-	worker.tui = r
+	worker := NewWorker(tui.New())
+	worker.tui.SetWorker(worker)
 
-	if err := r.Run(); err != nil {
+	if err := worker.tui.Run(); err != nil {
 		panic(err)
 	}
 }
