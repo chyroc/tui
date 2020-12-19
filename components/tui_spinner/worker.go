@@ -1,4 +1,4 @@
-package main
+package tui_spinner
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 type worker struct {
-	tui.TUI
+	tui      tui.TUI
 	count    int
 	options  [][]string
 	selected int
@@ -46,7 +46,7 @@ func (r *worker) View() string {
 func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	switch {
 	case e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC:
-		r.TUI.Stop()
+		r.tui.Stop()
 	case e.Key() == terminput.KeyUp || e.Key() == terminput.KeyLeft:
 		if r.selected > 0 {
 			r.selected--
@@ -62,25 +62,5 @@ func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 		}
 	default:
 		fmt.Printf("e=%s, e.ctrl=%v, rune=%v, mod=%v, key=%v\n", e, e.Ctrl(), e.Rune(), e.Mod(), e.Key())
-	}
-}
-
-func NewWorker(tui tui.TUI) *worker {
-	return &worker{TUI: tui}
-}
-
-func main() {
-	worker := NewWorker(tui.New())
-	worker.SetWorker(worker)
-	worker.options = [][]string{
-		{"🌎", "🌍", "🌏"},
-		{"☀️", "⛅️", "🌦", "☁️", "🌧", "⛈", "🌩"},
-		{"🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔"},
-		{"🕜", "🕝", "🕞", "🕟", "🕠", "🕡", "🕢", "🕣", "🕤", "🕥", "🕦", "🕧"},
-	}
-	// worker.fps = time.Second/100
-
-	if err := worker.Run(); err != nil {
-		panic(err)
 	}
 }
