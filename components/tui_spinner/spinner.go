@@ -19,7 +19,7 @@ type ComponentsSpinner struct {
 	worker *worker
 }
 
-// 运行 tui.Run
+// Run 运行 tui.Run
 func (r *ComponentsSpinner) Run() error {
 	err := r.worker.tui.Run()
 	if err != nil {

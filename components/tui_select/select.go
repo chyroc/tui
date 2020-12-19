@@ -42,8 +42,8 @@ func (r *ComponentsSelect) SetSize(size int) {
 	r.worker.windowMax = size - 1
 }
 
-// 运行 tui.Run
-func (r *ComponentsSelect) Select() (int, string, error) {
+// Run 运行 tui.Run
+func (r *ComponentsSelect) Run() (int, string, error) {
 	err := r.worker.tui.Run()
 	if err != nil {
 		return 0, "", err
