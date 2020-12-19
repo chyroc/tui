@@ -26,7 +26,7 @@ type Renderer struct {
 	framerate     time.Duration
 	ticker        *time.Ticker
 	mtx           *sync.Mutex
-	done          chan struct{}
+	done          *CloseChan
 	lastRender    string
 	linesRendered int
 
@@ -47,6 +47,7 @@ func NewRenderer(out *os.File, mtx *sync.Mutex) *Renderer {
 	r := &Renderer{
 		out:       out,
 		mtx:       mtx,
+		done:      NewCloseChan(),
 		framerate: defaultFramerate,
 	}
 	go listenForResize(out, func(width, height int, err error) {
@@ -61,14 +62,13 @@ func (r *Renderer) Start() {
 	if r.ticker == nil {
 		r.ticker = time.NewTicker(r.framerate)
 	}
-	r.done = make(chan struct{})
 	go r.listen()
 }
 
 // Stop permanently halts the Renderer.
 func (r *Renderer) Stop() {
 	r.flush()
-	r.done <- struct{}{}
+	r.done.Close()
 }
 
 // listen waits for ticks on the ticker, or a signal to Stop the Renderer.
@@ -79,12 +79,11 @@ func (r *Renderer) listen() {
 			if r.ticker != nil {
 				r.flush()
 			}
-		case <-r.done:
+		case <-r.done.Chan():
 			r.mtx.Lock()
 			r.ticker.Stop()
 			r.ticker = nil
 			r.mtx.Unlock()
-			CloseChanStruct(r.done)
 			return
 		}
 	}

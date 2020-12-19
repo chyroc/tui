@@ -1,30 +1,30 @@
 package internal
 
-func IsChanIntClosed(ch chan int) bool {
+type CloseChan struct {
+	done chan struct{}
+}
+
+func NewCloseChan() *CloseChan {
+	return &CloseChan{
+		done: make(chan struct{}),
+	}
+}
+
+func (r *CloseChan) Chan() chan struct{} {
+	return r.done
+}
+
+func (r *CloseChan) IsClosed() bool {
 	select {
-	case <-ch:
+	case <-r.done:
 		return true
 	default:
 	}
 	return false
 }
 
-func CloseChanInt(ch chan int) {
-	// select {
-	// case <-ch:
-	// 	return
-	// default:
-	// }
-
-	close(ch)
-}
-
-func CloseChanStruct(ch chan struct{}) {
-	select {
-	case <-ch:
-		return
-	default:
+func (r *CloseChan) Close() {
+	if !r.IsClosed() {
+		close(r.done)
 	}
-
-	close(ch)
 }

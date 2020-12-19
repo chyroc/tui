@@ -42,7 +42,7 @@ func (r *worker) View() string {
 func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	switch {
 	case e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC:
-		tui.Stop(r.TUI)
+		r.TUI.Stop()
 	case e.Key() == terminput.KeyUp || e.Key() == terminput.KeyLeft:
 		if r.selected > 0 {
 			r.selected--

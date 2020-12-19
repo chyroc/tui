@@ -27,7 +27,7 @@ func (r *worker) Init() error {
 			r.msg = fmt.Sprintf("success, code: %d", resp.StatusCode)
 		}
 		time.Sleep(time.Second)
-		tui.Stop(r.TUI)
+		r.TUI.Stop()
 	}()
 	return nil
 }
@@ -42,7 +42,7 @@ func (r *worker) View() string {
 
 func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	if e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC {
-		tui.Stop(r.TUI)
+		r.TUI.Stop()
 		return
 	}
 	fmt.Printf("e=%s, e.ctrl=%v, rune=%v, mod=%v, key=%v\n", e, e.Ctrl(), e.Rune(), e.Mod(), e.Key())

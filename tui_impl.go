@@ -9,11 +9,10 @@ import (
 )
 
 type impl struct {
-	output    *os.File
-	worker    Worker
-	render    *internal.Renderer
-	done      chan struct{}
-	closeOnce sync.Once
+	output *os.File
+	worker Worker
+	render *internal.Renderer
+	done   *internal.CloseChan
 }
 
 func newImpl() *impl {
@@ -21,12 +20,16 @@ func newImpl() *impl {
 	return &impl{
 		output: os.Stdout,
 		render: internal.NewRenderer(os.Stdout, &lock),
-		done:   make(chan struct{}),
+		done:   internal.NewCloseChan(),
 	}
 }
 
 func (r *impl) SetWorker(worker Worker) {
 	r.worker = worker
+}
+
+func (r *impl) Stop() {
+	r.done.Close()
 }
 
 func (r *impl) Run() (finalErr error) {
@@ -50,7 +53,7 @@ func (r *impl) Run() (finalErr error) {
 	go func() {
 		for {
 			select {
-			case <-r.done:
+			case <-r.done.Chan():
 				return
 			default:
 				e, err := readTerminalInput(r.output)
@@ -70,7 +73,7 @@ func (r *impl) Run() (finalErr error) {
 		case <-t.C:
 			v := r.worker.View()
 			r.render.Write(v)
-		case <-r.done:
+		case <-r.done.Chan():
 			return nil
 		}
 	}

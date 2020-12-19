@@ -67,13 +67,13 @@ func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	switch {
 	case e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC:
 		r.err = ErrNoSelect
-		tui.Stop(r.tui)
+		r.tui.Stop()
 	case e.Key() == terminput.KeyUp:
 		r.ptrUp()
 	case e.Key() == terminput.KeyDown:
 		r.ptrDown()
 	case e.Key() == terminput.KeyEnter:
-		tui.Stop(r.tui)
+		r.tui.Stop()
 	}
 }
 

@@ -24,7 +24,7 @@ func (r *worker) Init() error {
 			}
 			time.Sleep(time.Second / 10)
 		}
-		tui.Stop(r.tui)
+		r.tui.Stop()
 	}()
 	return nil
 }
@@ -39,7 +39,7 @@ func (r *worker) View() string {
 
 func (r *worker) HandleInput(e *terminput.KeyboardInput) {
 	if e.Key() == terminput.KeyEscape || e.Rune() == 'q' || e.Key() == tui.KeyCtrlC {
-		tui.Stop(r.tui)
+		r.tui.Stop()
 		return
 	}
 	fmt.Printf("e=%s, e.ctrl=%v, rune=%v, mod=%v, key=%v\n", e, e.Ctrl(), e.Rune(), e.Mod(), e.Key())
