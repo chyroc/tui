@@ -45,7 +45,7 @@ func (r *worker) View() string {
 			s += "\n"
 		}
 	} else {
-		for idx := r.windowMin; idx <= r.windowMax; idx++ {
+		for idx := r.windowMin; idx <= max(r.windowMax, len(r.options)-1); idx++ {
 			if idx == r.selected {
 				s += "(•) " + r.options[idx]
 			} else {
@@ -112,4 +112,11 @@ func (r *worker) isPtrInWindow() bool {
 		return true
 	}
 	return r.selected >= r.windowMin && r.selected <= r.windowMax
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
